@@ -8,7 +8,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
 )
 
@@ -29,12 +28,9 @@ func NewCBCCrypter(c *Crypto) *CBCCrypter {
 }
 
 // Encrypt encrypt plaintext to ciphertext
-func (c *CBCCrypter) Encrypt(plaintext []byte) (CipherData, error) {
-	var ciphertext []byte
+func (c *CBCCrypter) Encrypt(plaintext []byte) (Data, error) {
+	var ciphertext Data
 	plaintext = Padding(c.padding, c.blockSize, plaintext)
-	fmt.Println("c.blockSize", c.blockSize)
-	fmt.Println("len(plaintext)", len(plaintext))
-	fmt.Println("c.key", len(c.key))
 
 	block, err := aes.NewCipher(c.key)
 	if err != nil {
@@ -49,8 +45,6 @@ func (c *CBCCrypter) Encrypt(plaintext []byte) (CipherData, error) {
 		return ciphertext, err
 	}
 
-	fmt.Println(len(iv))
-
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(ciphertext[c.blockSize:], plaintext)
 
@@ -61,19 +55,19 @@ func (c *CBCCrypter) Encrypt(plaintext []byte) (CipherData, error) {
 }
 
 // DecryptFromBase64 encrypt plaintext to ciphertext string
-func (c *CBCCrypter) DecryptFromBase64(str string) (CipherData, error) {
-	var ciphertext CipherData
-	plaintext, err := base64.StdEncoding.DecodeString(str)
+func (c *CBCCrypter) DecryptFromBase64(str string) (Data, error) {
+	var ciphertext Data
+	ciphertext, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
 		return ciphertext, err
 	}
 
-	return c.Decrypt(plaintext)
+	return c.Decrypt(ciphertext)
 }
 
 // Decrypt decrypt ciphertext to plaintext
-func (c *CBCCrypter) Decrypt(ciphertext []byte) (CipherData, error) {
-	var plaintext CipherData
+func (c *CBCCrypter) Decrypt(ciphertext []byte) (Data, error) {
+	var plaintext Data
 	block, err := aes.NewCipher(c.key)
 	if err != nil {
 		return plaintext, err

@@ -4,9 +4,9 @@ package xcrypto
 
 // Crypter struct
 type Crypter interface {
-	Encrypt(data []byte) (CipherData, error)
-	Decrypt(data []byte) (CipherData, error)
-	DecryptFromBase64(str string) (CipherData, error)
+	Encrypt(data []byte) (Data, error)
+	Decrypt(data []byte) (Data, error)
+	DecryptFromBase64(str string) (Data, error)
 }
 
 // CBC return *CBCCrypter
@@ -28,16 +28,16 @@ func (c *Crypto) ECB() Crypter {
 }
 
 // Encrypt data
-func (c *Crypto) Encrypt(data []byte) (CipherData, error) {
+func (c *Crypto) Encrypt(data []byte) (Data, error) {
 	return c.crypter.Encrypt(data)
 }
 
 // Decrypt data
-func (c *Crypto) Decrypt(data []byte) (CipherData, error) {
+func (c *Crypto) Decrypt(data []byte) (Data, error) {
 	return c.crypter.Encrypt(data)
 }
 
 // DecryptFromBase64 decrypt data from base64
-func (c *Crypto) DecryptFromBase64(str string) (CipherData, error) {
+func (c *Crypto) DecryptFromBase64(str string) (Data, error) {
 	return c.crypter.DecryptFromBase64(str)
 }

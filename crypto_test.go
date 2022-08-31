@@ -17,7 +17,19 @@ func TestNew(t *testing.T) {
 
 	crypter := c.CBC()
 
-	cipherData, err := crypter.Encrypt([]byte(`asdf`))
+	alarm := struct {
+		Foo    string `json:"foo"`
+		Hello  string `json:"hello"`
+		Number int    `json:"number"`
+		Bool   bool   `json:"bool"`
+	}{}
+
+	cipherData, err := crypter.Encrypt([]byte(`{
+        "foo": "bar",
+		"hello": "world",
+		"number": 123,
+		"bool": true
+      }`))
 
 	fmt.Println(cipherData.Base64(), err)
 	fmt.Println(cipherData.String(), err)
@@ -28,5 +40,9 @@ func TestNew(t *testing.T) {
 	fmt.Println(plaintext.Base64(), err)
 	fmt.Println(plaintext.String(), err)
 	fmt.Println(plaintext.Bytes(), err)
+
+	fmt.Println(plaintext.Unmarshal(&alarm))
+
+	fmt.Println(alarm.Hello)
 
 }

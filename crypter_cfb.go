@@ -23,24 +23,24 @@ func NewCFBCrypter(c *Crypto) *CFBCrypter {
 }
 
 // Encrypt encrypt plaintext to ciphertext
-func (c *CFBCrypter) Encrypt(plaintext []byte) (CipherData, error) {
-	var ciphertext []byte
+func (c *CFBCrypter) Encrypt(plaintext []byte) (Data, error) {
+	var ciphertext Data
 	return ciphertext, nil
 }
 
 // DecryptFromBase64 encrypt plaintext to ciphertext string
-func (c *CFBCrypter) DecryptFromBase64(str string) (CipherData, error) {
-	var ciphertext CipherData
-	plaintext, err := base64.StdEncoding.DecodeString(str)
+func (c *CFBCrypter) DecryptFromBase64(str string) (Data, error) {
+	var plaintext, ciphertext Data
+	ciphertext, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
-		return ciphertext, err
+		return plaintext, err
 	}
 
-	return c.Decrypt(plaintext)
+	return c.Decrypt(ciphertext)
 }
 
 // Decrypt decrypt ciphertext to plaintext
-func (c *CFBCrypter) Decrypt(ciphertext []byte) (CipherData, error) {
-	var plaintext CipherData
+func (c *CFBCrypter) Decrypt(ciphertext []byte) (Data, error) {
+	var plaintext Data
 	return plaintext, nil
 }
