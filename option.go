@@ -26,9 +26,23 @@ func WithPKCS7Padding() Option {
 	}
 }
 
-// WithCrypter set Crypter to crypto
-func WithCrypter(crypterType string) Option {
+// WithCBCCrypter set Crypter to CBCCrypter
+func WithCBCCrypter() Option {
 	return func(c *Crypto) {
-		c.setCrypter(crypterType)
+		c.CBC()
+	}
+}
+
+// WithCFBCrypter set Crypter to CFBCrypter
+func WithCFBCrypter() Option {
+	return func(c *Crypto) {
+		c.CFB()
+	}
+}
+
+// WithECBCrypter set Crypter to ECBCrypter
+func WithECBCrypter() Option {
+	return func(c *Crypto) {
+		c.ECB()
 	}
 }

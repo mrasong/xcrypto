@@ -75,31 +75,34 @@ func (c *Crypto) PKCS7Padding() *Crypto {
 
 // CBC return *CBCCrypter
 func (c *Crypto) CBC() *Crypto {
-	return c.setCrypter(CrypterTypeCBC)
+	c.crypterType = CrypterTypeCBC
+	c.crypter = NewCBCCrypter(c.key, c.padding)
+	return c
 }
 
 // CFB return *CFBCrypter
 func (c *Crypto) CFB() *Crypto {
-	return c.setCrypter(CrypterTypeCFB)
+	c.crypterType = CrypterTypeCFB
+	c.crypter = NewCFBCrypter(c.key, c.padding)
+	return c
 }
 
 // ECB return *ECBCrypter
 func (c *Crypto) ECB() *Crypto {
-	return c.setCrypter(CrypterTypeECB)
+	c.crypterType = CrypterTypeECB
+	c.crypter = NewECBCrypter(c.key, c.padding)
+	return c
 }
 
 // setCrypter set crypter for *Crypto
 func (c *Crypto) setCrypter(crypterType string) *Crypto {
 	switch crypterType {
 	case CrypterTypeCBC:
-		c.crypterType = CrypterTypeCBC
-		c.crypter = NewCBCCrypter(c.key, c.padding)
+		c.CBC()
 	case CrypterTypeCFB:
-		c.crypterType = CrypterTypeCFB
-		c.crypter = NewCFBCrypter(c.key, c.padding)
+		c.CFB()
 	case CrypterTypeECB:
-		c.crypterType = CrypterTypeECB
-		c.crypter = NewECBCrypter(c.key, c.padding)
+		c.ECB()
 	}
 	return c
 }
