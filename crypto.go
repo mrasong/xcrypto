@@ -114,7 +114,7 @@ func (c *Crypto) Encrypt(data []byte) (Data, error) {
 
 // Decrypt data
 func (c *Crypto) Decrypt(data []byte) (Data, error) {
-	return c.crypter.Encrypt(data)
+	return c.crypter.Decrypt(data)
 }
 
 // DecryptFromBase64 decrypt data from base64

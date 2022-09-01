@@ -65,7 +65,7 @@ func PKCS7Padding(data []byte) []byte {
 func PKCS7Unpadding(data []byte) []byte {
 	length := len(data)
 	if length == 0 || len(data)%BlockSize != 0 {
-		panic("PKCS5Unpadding: data length error")
+		return data
 	}
 
 	unpadding := int(data[length-1])
