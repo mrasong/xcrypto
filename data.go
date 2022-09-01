@@ -4,6 +4,7 @@ package xcrypto
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 )
 
@@ -18,6 +19,11 @@ func (d Data) Base64() string {
 // String convert data to string
 func (d Data) String() string {
 	return string(d)
+}
+
+// HexString convert data to Hex string
+func (d Data) HexString() string {
+	return hex.EncodeToString(d)
 }
 
 // Bytes convert data to Byte

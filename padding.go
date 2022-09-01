@@ -14,33 +14,33 @@ const (
 )
 
 // Padding data
-func Padding(padding string, blockSize int, data []byte) []byte {
+func Padding(padding string, data []byte) []byte {
 	var paddingData []byte
 	switch padding {
 	case PaddingTypeZero:
-		paddingData = ZeroPadding(blockSize, data)
+		paddingData = ZeroPadding(data)
 	case PaddingTypePKCS7:
-		paddingData = PKCS7Padding(blockSize, data)
+		paddingData = PKCS7Padding(data)
 	}
 	return paddingData
 }
 
 // Unpadding data
-func Unpadding(padding string, blockSize int, data []byte) []byte {
+func Unpadding(padding string, data []byte) []byte {
 	var unpaddingData []byte
 	switch padding {
 	case PaddingTypeZero:
 		unpaddingData = ZeroUnpadding(data)
 	case PaddingTypePKCS7:
-		unpaddingData = PKCS7Unpadding(blockSize, data)
+		unpaddingData = PKCS7Unpadding(data)
 	}
 	return unpaddingData
 }
 
 // ZeroPadding Zero Padding
-func ZeroPadding(blockSize int, data []byte) []byte {
-	padding := blockSize - len(data)%blockSize
-	if padding == blockSize {
+func ZeroPadding(data []byte) []byte {
+	padding := BlockSize - len(data)%BlockSize
+	if padding == BlockSize {
 		return data
 	}
 	paddingData := bytes.Repeat([]byte{byte(0)}, padding)
@@ -55,16 +55,16 @@ func ZeroUnpadding(data []byte) []byte {
 }
 
 // PKCS7Padding pkcs7Padding
-func PKCS7Padding(blockSize int, data []byte) []byte {
-	padding := blockSize - len(data)%blockSize
+func PKCS7Padding(data []byte) []byte {
+	padding := BlockSize - len(data)%BlockSize
 	paddingData := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(data, paddingData...)
 }
 
 // PKCS7Unpadding unpadding PKCS7
-func PKCS7Unpadding(blockSize int, data []byte) []byte {
+func PKCS7Unpadding(data []byte) []byte {
 	length := len(data)
-	if length == 0 || len(data)%blockSize != 0 {
+	if length == 0 || len(data)%BlockSize != 0 {
 		panic("PKCS5Unpadding: data length error")
 	}
 

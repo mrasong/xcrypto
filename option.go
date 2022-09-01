@@ -12,20 +12,6 @@ func WithKey(key []byte) Option {
 	}
 }
 
-// WithBlockSize set BlockSize to crypto
-func WithBlockSize(blockSize int) Option {
-	return func(c *Crypto) {
-		c.BlockSize(blockSize)
-	}
-}
-
-// WithCrypter set Crypter to crypto
-func WithCrypter(crypter string) Option {
-	return func(c *Crypto) {
-		c.Crypter(crypter)
-	}
-}
-
 // WithZeroPadding set Padding to zeropadding
 func WithZeroPadding() Option {
 	return func(c *Crypto) {
@@ -37,5 +23,12 @@ func WithZeroPadding() Option {
 func WithPKCS7Padding() Option {
 	return func(c *Crypto) {
 		c.Padding(PaddingTypePKCS7)
+	}
+}
+
+// WithCrypter set Crypter to crypto
+func WithCrypter(crypterType string) Option {
+	return func(c *Crypto) {
+		c.setCrypter(crypterType)
 	}
 }

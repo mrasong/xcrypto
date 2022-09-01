@@ -3,28 +3,52 @@
 package xcrypto
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"encoding/base64"
+	"io"
 )
 
 // ECBCrypter cbc crypter
 type ECBCrypter struct {
-	key       []byte
-	blockSize int
-	padding   string
+	key     []byte
+	padding string
 }
 
 // NewECBCrypter return *ECBCrypter
-func NewECBCrypter(c *Crypto) *ECBCrypter {
+func NewECBCrypter(key []byte, padding string) *ECBCrypter {
 	return &ECBCrypter{
-		key:       c.key,
-		blockSize: c.blockSize,
-		padding:   c.padding,
+		key:     key,
+		padding: padding,
 	}
 }
 
 // Encrypt encrypt plaintext to ciphertext
 func (c *ECBCrypter) Encrypt(plaintext []byte) (Data, error) {
 	var ciphertext Data
+	plaintext = Padding(c.padding, plaintext)
+
+	block, err := aes.NewCipher(c.key)
+	if err != nil {
+		return ciphertext, err
+	}
+
+	// The IV needs to be unique, but not secure. Therefore it's common to
+	// include it at the beginning of the ciphertext.
+	ciphertext = make([]byte, BlockSize+len(plaintext))
+	iv := ciphertext[:BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return ciphertext, err
+	}
+
+	mode := cipher.NewCBCEncrypter(block, iv)
+	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
+
+	// It's important to remember that ciphertexts must be authenticated
+	// (i.e. by using crypto/hmac) as well as being encrypted in order to
+	// be secure.
+
 	return ciphertext, nil
 }
 

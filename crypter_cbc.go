@@ -13,24 +13,22 @@ import (
 
 // CBCCrypter cbc crypter
 type CBCCrypter struct {
-	key       []byte
-	blockSize int
-	padding   string
+	key     []byte
+	padding string
 }
 
 // NewCBCCrypter return *CBCCrypter
-func NewCBCCrypter(c *Crypto) *CBCCrypter {
+func NewCBCCrypter(key []byte, padding string) *CBCCrypter {
 	return &CBCCrypter{
-		key:       c.key,
-		blockSize: c.blockSize,
-		padding:   c.padding,
+		key:     key,
+		padding: padding,
 	}
 }
 
 // Encrypt encrypt plaintext to ciphertext
 func (c *CBCCrypter) Encrypt(plaintext []byte) (Data, error) {
 	var ciphertext Data
-	plaintext = Padding(c.padding, c.blockSize, plaintext)
+	plaintext = Padding(c.padding, plaintext)
 
 	block, err := aes.NewCipher(c.key)
 	if err != nil {
@@ -39,14 +37,14 @@ func (c *CBCCrypter) Encrypt(plaintext []byte) (Data, error) {
 
 	// The IV needs to be unique, but not secure. Therefore it's common to
 	// include it at the beginning of the ciphertext.
-	ciphertext = make([]byte, c.blockSize+len(plaintext))
-	iv := ciphertext[:c.blockSize]
+	ciphertext = make([]byte, BlockSize+len(plaintext))
+	iv := ciphertext[:BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		return ciphertext, err
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext[c.blockSize:], plaintext)
+	mode.CryptBlocks(ciphertext[BlockSize:], plaintext)
 
 	// It's important to remember that ciphertexts must be authenticated
 	// (i.e. by using crypto/hmac) as well as being encrypted in order to
@@ -75,14 +73,14 @@ func (c *CBCCrypter) Decrypt(ciphertext []byte) (Data, error) {
 
 	// The IV needs to be unique, but not secure. Therefore it's common to
 	// include it at the beginning of the ciphertext.
-	if len(ciphertext) < c.blockSize {
+	if len(ciphertext) < BlockSize {
 		return plaintext, errors.New("ciphertext too short")
 	}
-	iv := ciphertext[:c.blockSize]
-	ciphertext = ciphertext[c.blockSize:]
+	iv := ciphertext[:BlockSize]
+	ciphertext = ciphertext[BlockSize:]
 
 	// CBC mode always works in whole blocks.
-	if len(ciphertext)%c.blockSize != 0 {
+	if len(ciphertext)%BlockSize != 0 {
 		return plaintext, errors.New("ciphertext is not a multiple of the block size")
 	}
 
@@ -99,6 +97,6 @@ func (c *CBCCrypter) Decrypt(ciphertext []byte) (Data, error) {
 	// critical to note that ciphertexts must be authenticated (i.e. by
 	// using crypto/hmac) before being decrypted in order to avoid creating
 	// a padding oracle.
-	plaintext = Unpadding(c.padding, c.blockSize, plaintext)
+	plaintext = Unpadding(c.padding, plaintext)
 	return plaintext, nil
 }
