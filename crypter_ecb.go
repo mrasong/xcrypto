@@ -7,6 +7,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"io"
 )
 
@@ -43,12 +44,11 @@ func (c *ECBCrypter) Encrypt(plaintext []byte) (Data, error) {
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
+	mode.CryptBlocks(ciphertext[BlockSize:], plaintext)
 
 	// It's important to remember that ciphertexts must be authenticated
 	// (i.e. by using crypto/hmac) as well as being encrypted in order to
 	// be secure.
-
 	return ciphertext, nil
 }
 
@@ -66,5 +66,37 @@ func (c *ECBCrypter) DecryptFromBase64(str string) (Data, error) {
 // Decrypt decrypt ciphertext to plaintext
 func (c *ECBCrypter) Decrypt(ciphertext []byte) (Data, error) {
 	var plaintext Data
+	block, err := aes.NewCipher(c.key)
+	if err != nil {
+		return plaintext, err
+	}
+
+	// The IV needs to be unique, but not secure. Therefore it's common to
+	// include it at the beginning of the ciphertext.
+	if len(ciphertext) < BlockSize {
+		return plaintext, errors.New("ciphertext too short")
+	}
+	iv := ciphertext[:BlockSize]
+	ciphertext = ciphertext[BlockSize:]
+
+	// CBC mode always works in whole blocks.
+	if len(ciphertext)%BlockSize != 0 {
+		return plaintext, errors.New("ciphertext is not a multiple of the block size")
+	}
+
+	mode := cipher.NewCBCDecrypter(block, iv)
+
+	// CryptBlocks can work in-place if the two arguments are the same.
+	plaintext = make([]byte, len(ciphertext))
+	mode.CryptBlocks(plaintext, ciphertext)
+
+	// If the original plaintext lengths are not a multiple of the block
+	// size, padding would have to be added when encrypting, which would be
+	// removed at this point. For an example, see
+	// https://tools.ietf.org/html/rfc5246#section-6.2.3.2. However, it's
+	// critical to note that ciphertexts must be authenticated (i.e. by
+	// using crypto/hmac) before being decrypted in order to avoid creating
+	// a padding oracle.
+	plaintext = Unpadding(c.padding, plaintext)
 	return plaintext, nil
 }
