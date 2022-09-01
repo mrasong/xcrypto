@@ -115,7 +115,7 @@ func ExampleCrypto_DecryptFromBase64() {
 	fmt.Println("Decrypt.Unmarshal:   ", alarm.Hello)
 }
 
-func ExampleCrypter_Encrypt() {
+func ExampleCBCCrypter_Encrypt() {
 	key := []byte("key")
 	data := []byte(`{
         "foo": "bar",
@@ -127,9 +127,9 @@ func ExampleCrypter_Encrypt() {
 	c := xcrypto.New(
 		xcrypto.WithKey(key),
 		xcrypto.WithPKCS7Padding(),
-	).CBC()
+	)
 
-	crypter := c.Crypter()
+	crypter := c.CBCCrypter()
 	cipherData, err := crypter.Encrypt(data)
 	fmt.Println("Encrypt.err:         ", err)
 	fmt.Println("Encrypt.Base64():    ", cipherData.Base64())
@@ -138,7 +138,7 @@ func ExampleCrypter_Encrypt() {
 	fmt.Println("Encrypt.Bytes():     ", cipherData.Bytes())
 }
 
-func ExampleCrypter_Decrypt() {
+func ExampleCBCCrypter_Decrypt() {
 	key := []byte("key")
 	alarm := struct {
 		Foo    string `json:"foo"`
@@ -156,9 +156,9 @@ func ExampleCrypter_Decrypt() {
 	c := xcrypto.New(
 		xcrypto.WithKey(key),
 		xcrypto.WithPKCS7Padding(),
-	).CBC()
+	)
 
-	crypter := c.Crypter()
+	crypter := c.CBCCrypter()
 	cipherData, err := crypter.Encrypt(data)
 	plaintext, err := crypter.Decrypt(cipherData)
 	fmt.Println("Decrypt.err:         ", err)
@@ -170,7 +170,7 @@ func ExampleCrypter_Decrypt() {
 	fmt.Println("Decrypt.Unmarshal:   ", alarm.Hello)
 }
 
-func ExampleCrypter_DecryptFromBase64() {
+func ExampleCBCCrypter_DecryptFromBase64() {
 	key := []byte("key")
 	alarm := struct {
 		Foo    string `json:"foo"`
@@ -188,9 +188,9 @@ func ExampleCrypter_DecryptFromBase64() {
 	c := xcrypto.New(
 		xcrypto.WithKey(key),
 		xcrypto.WithPKCS7Padding(),
-	).CBC()
+	)
 
-	crypter := c.Crypter()
+	crypter := c.CBCCrypter()
 	cipherData, err := crypter.Encrypt(data)
 
 	plaintext, err := crypter.DecryptFromBase64(cipherData.Base64())
